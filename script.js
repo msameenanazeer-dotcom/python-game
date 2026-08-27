@@ -1,61 +1,55 @@
-// Generate a random number between 1 and 100
-let secretNumber = Math.floor(Math.random() * 100) + 1;
-
-// Keep track of attempts
+let secretNumber;
 let attempts = 0;
 
-// Get elements from the HTML page
-const guessInput = document.getElementById("guessInput");
-const guessButton = document.getElementById("guessButton");
+const input = document.getElementById("guessInput");
+const guessBtn = document.getElementById("guessBtn");
+const restartBtn = document.getElementById("restartBtn");
 const message = document.getElementById("message");
-const attemptsDisplay = document.getElementById("attempts");
-const restartButton = document.getElementById("restartButton");
+const attemptsText = document.getElementById("attempts");
 
-// When the Guess button is clicked
-guessButton.addEventListener("click", function () {
+function startGame() {
+  secretNumber = Math.floor(Math.random() * 100) + 1;
+  attempts = 0;
+  attemptsText.textContent = attempts;
+  message.textContent = "I have chosen a number. Can you guess it?";
+  input.value = "";
+  input.disabled = false;
+  guessBtn.disabled = false;
+  input.focus();
+}
 
-    const guess = Number(guessInput.value);
+function makeGuess() {
+  const guess = Number(input.value);
 
-    // Check if the input is valid
-    if (guess < 1 || guess > 100 || guessInput.value === "") {
-        message.textContent = "⚠️ Please enter a number between 1 and 100.";
-        return;
-    }
+  if (!Number.isInteger(guess) || guess < 1 || guess > 100) {
+    message.textContent = "⚠️ Please enter a number from 1 to 100.";
+    return;
+  }
 
-    // Increase attempts
-    attempts++;
-    attemptsDisplay.textContent = attempts;
+  attempts++;
+  attemptsText.textContent = attempts;
 
-    // Check the guess
-    if (guess === secretNumber) {
+  if (guess < secretNumber) {
+    message.textContent = "📈 Too low! Try a higher number.";
+  } else if (guess > secretNumber) {
+    message.textContent = "📉 Too high! Try a lower number.";
+  } else {
+    message.textContent = `🎉 Correct! You guessed it in ${attempts} attempt${attempts === 1 ? "" : "s"}!`;
+    input.disabled = true;
+    guessBtn.disabled = true;
+  }
 
-        message.textContent = "🎉 Correct! You guessed the number!";
-        message.style.color = "green";
+  input.select();
+}
 
-    } else if (guess < secretNumber) {
+guessBtn.addEventListener("click", makeGuess);
 
-        message.textContent = "📈 Too low! Try again.";
-        message.style.color = "orange";
-
-    } else {
-
-        message.textContent = "📉 Too high! Try again.";
-        message.style.color = "red";
-    }
-
-    // Clear the input
-    guessInput.value = "";
+input.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    makeGuess();
+  }
 });
 
-// Restart the game
-restartButton.addEventListener("click", function () {
+restartBtn.addEventListener("click", startGame);
 
-    secretNumber = Math.floor(Math.random() * 100) + 1;
-    attempts = 0;
-
-    attemptsDisplay.textContent = attempts;
-    message.textContent = "Enter a number to start!";
-    message.style.color = "#444";
-
-    guessInput.value = "";
-});
+startGame();
